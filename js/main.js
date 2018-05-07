@@ -1,5 +1,11 @@
 var map;
 
+function googleError() {
+    // error handling function
+    alert('The request to Google Maps failed');
+}
+
+
 function initMap() {
     // Constructor creates a new map   
     map = new google.maps.Map(document.getElementById('map'), {
@@ -23,6 +29,7 @@ function initMap() {
     ko.applyBindings(new ViewModel());
 };
 
+
 // Toggle the animation between a BOUNCE animation and no animation
 // Bounce for 2800 msec
 function toggleBounce(marker) {
@@ -35,6 +42,7 @@ function toggleBounce(marker) {
         }, 2800);
     }
 };
+
 
 // This function populates the infowindow when the marker is clicked. 
 // We'll only allow one infowindow which will open at the marker that is 
@@ -69,10 +77,13 @@ function populateInfoWindow(marker, infowindow) {
         // create the API url for the 'search for venues' call
         var fsSearchVenuesUrl = base_url + endpoint + params + key;
 
+        var venue = [];
+        var innerHTML = "";
+
         // AJAX request for getting Foursquare Venue informations
         $.getJSON(fsSearchVenuesUrl, function(data) {
-            var venue = data.response.venues[0];
-            var innerHTML = "<div><strong>" + venue.name + "</strong>";
+            venue = data.response.venues[0];
+            innerHTML = "<div><strong>" + venue.name + "</strong>";
             
             if (venue.location.address) {
                 innerHTML += "</br>" + venue.location.address;
@@ -91,7 +102,7 @@ function populateInfoWindow(marker, infowindow) {
                     "<a href=" + venue.url + " target='_blank'>" + venue.url + 
                     "</a>";
             };
-
+        }).done(function() {
             // new endpoint and parameter forsquare request
             endpoint = "venues/" + venue.id + "/photos?";
             params =
@@ -106,31 +117,29 @@ function populateInfoWindow(marker, infowindow) {
 
             // doing a synchronous request to load photo within the initial 
             // asynchronous request.This prevents race condition
-            $.ajax({
-                async: false,
-                url: fsGetVenuesPhotoUrl
-            // when ok call
-            }).done(function(data) {
+            $.getJSON(fsGetVenuesPhotoUrl, function(data) {
                 venuePhoto = data.response.photos.items[0];
+                
+            }).done(function() {
+                if (venuePhoto.prefix) {
+                    innerHTML += "</br></br>" +
+                        "<img src=" + venuePhoto.prefix + 
+                        "height100" + venuePhoto.suffix + ">";
+                };
+
             // when failure call; show error
             }).fail(function(jqxhr, textStatus, error) {
                 var err = textStatus + ", " + error;
                 console.log("Request Failed: " + err);
                 alert('The request to Foursquare failed');
+            }).always(function() {   
+                // Attribution for using foursquare
+                innerHTML += "</br></br>" +
+                "<img src=img/Powered-by-Foursquare.png" +
+                " width=150 height=30></div>";
+
+                infowindow.setContent(innerHTML);
             });
-
-            if (venuePhoto.prefix) {
-                innerHTML += "</br></br>" +
-                    "<img src=" + venuePhoto.prefix + 
-                    "height100" + venuePhoto.suffix + ">";
-            };
-
-            // Attribution for using foursquare
-                innerHTML += "</br></br>" +
-                    "<img src=img/Powered-by-Foursquare.png" +
-                    " width=150 height=30></div>";
-
-            infowindow.setContent(innerHTML);
 
         // when failure call; show error
         }).fail(function(jqxhr, textStatus, error) {
@@ -148,6 +157,7 @@ function populateInfoWindow(marker, infowindow) {
     }
 };
 
+
 // This function takes in a COLOR, and then creates a new marker
 // icon of that color. The icon will be 21 px wide by 34 high, have an origin
 // of 0, 0 and be anchored at 10, 34).
@@ -161,6 +171,7 @@ function makeMarkerIcon(markerColor) {
       new google.maps.Size(21,34));
     return markerImage;
 };
+
 
 // Set the initial locations for the map markers
 var initialLocations = [
@@ -227,12 +238,14 @@ var initialLocations = [
     }
 ];
 
+
 // functions to set the location
 var Location = function(data) {
     this.title = ko.observable(data.title);
     this.location = ko.observable(data.location);
     this.marker = ko.observable;
 };
+
 
 var ViewModel = function() {
     var self = this;

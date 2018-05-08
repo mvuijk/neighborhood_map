@@ -27,7 +27,7 @@ function initMap() {
     });
 
     ko.applyBindings(new ViewModel());
-};
+}
 
 
 // Toggle the animation between a BOUNCE animation and no animation
@@ -41,7 +41,7 @@ function toggleBounce(marker) {
             marker.setAnimation(null);
         }, 2800);
     }
-};
+}
 
 
 // This function populates the infowindow when the marker is clicked. 
@@ -87,21 +87,21 @@ function populateInfoWindow(marker, infowindow) {
             
             if (venue.location.address) {
                 innerHTML += "</br>" + venue.location.address;
-            };
+            }
 
             if (venue.location.postalCode) {
                 innerHTML += "</br>" + venue.location.postalCode;
-            };
+            }
 
             if (venue.location.city) {
                 innerHTML += " " + venue.location.city;
-            };
+            }
 
             if (venue.url) {
                 innerHTML += "</br>" + 
                     "<a href=" + venue.url + " target='_blank'>" + venue.url + 
                     "</a>";
-            };
+            }
         }).done(function() {
             // new endpoint and parameter forsquare request
             endpoint = "venues/" + venue.id + "/photos?";
@@ -125,7 +125,7 @@ function populateInfoWindow(marker, infowindow) {
                     innerHTML += "</br></br>" +
                         "<img src=" + venuePhoto.prefix + 
                         "height100" + venuePhoto.suffix + ">";
-                };
+                }
 
             // when failure call; show error
             }).fail(function(jqxhr, textStatus, error) {
@@ -155,7 +155,8 @@ function populateInfoWindow(marker, infowindow) {
             infowindow.setMarker = null;
         });
     }
-};
+}
+
 
 
 // This function takes in a COLOR, and then creates a new marker
@@ -170,7 +171,8 @@ function makeMarkerIcon(markerColor) {
       new google.maps.Point(10, 34),
       new google.maps.Size(21,34));
     return markerImage;
-};
+}
+
 
 
 // Set the initial locations for the map markers
@@ -287,7 +289,7 @@ var ViewModel = function() {
 
             // Make sure all marker animations have been switched off
             self.locationList().forEach(function(location) {
-                location.marker.setAnimation(null)
+                location.marker.setAnimation(null);
             });
             populateInfoWindow(this, largeInfowindow);
         });
@@ -308,11 +310,12 @@ var ViewModel = function() {
     self.locationListSelected = function(location) {
             // Make sure all marker animations have been switched off
             self.locationList().forEach(function(location) {
-                location.marker.setAnimation(null)
+                location.marker.setAnimation(null);
             });
 
             populateInfoWindow(location.marker, largeInfowindow);
     };
+    
 
     // filter the list based on user input (filterText)
     self.locationListFiltered = ko.computed(function() {
